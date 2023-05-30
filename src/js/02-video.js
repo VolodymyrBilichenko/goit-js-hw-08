@@ -23,5 +23,3 @@ player.setCurrentTime(localStorage.getItem(KEY_VALUE)).then(function(seconds) {
             break;
     }
 });
-
-

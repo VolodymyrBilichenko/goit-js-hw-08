@@ -1,46 +1,45 @@
 import throttle from 'lodash.throttle';
 
-const form = document.querySelector('.feedback-form');
-const emailInput = form.querySelector('input[name="email"]');
-const messageInput = form.querySelector('textarea[name="message"]');
+const refs = {
+  form: document.querySelector('.feedback-form'),
+  input: document.querySelector('.feedback-form input'),
+  textarea: document.querySelector('.feedback-form textarea'),
+}
 
-const formState = {
-  email: '',
-  message: '',
-};
+document.addEventListener('DOMContentLoaded', formDataLocaleStorage);
+refs.form.addEventListener('submit', onFormSubmit);
 
-(() => {
-  const savedState = localStorage.getItem('feedback-form-state');
-  if (!savedState) {
-    return;
+const formData = {};
+
+const OBJECT_KEY = 'feedback-form-state';
+
+refs.form.addEventListener('input', throttle(function (evt) {
+  formData[evt.target.name] = evt.target.value;
+  
+  const formDataJSON = JSON.stringify(formData);
+
+  localStorage.setItem(OBJECT_KEY, formDataJSON);
+}, 3500));
+
+function formDataLocaleStorage() {
+  const savedData = localStorage.getItem(OBJECT_KEY);
+
+  if (savedData) {
+    const parseData = JSON.parse(savedData);
+    const { email, message } = parseData;
+    refs.input.value = email;
+    refs.textarea.value = message;
+    formData.email = email;
+    formData.message = message;
   }
+}
 
-  const { email, message } = JSON.parse(savedState);
+function onFormSubmit(evt) {
+  evt.preventDefault();
 
-  emailInput.value = email;
-  messageInput.value = message;
-})();
+  console.log(formData);
 
-const saveFormState = throttle(() => {
-  formState.email = emailInput.value;
-  formState.message = messageInput.value;
-  localStorage.setItem('feedback-form-state', JSON.stringify(formState));
-}, 500);
+  localStorage.removeItem(OBJECT_KEY);
 
-form.addEventListener('input', saveFormState);
-
-form.addEventListener('submit', event => {
-  event.preventDefault();
-
-  console.log('Form submitted with values:', {
-    email: formState.email,
-    message: formState.message,
-  });
-
-  localStorage.removeItem('feedback-form-state');
-
-  form.reset();
-
-  formState.email = '';
-  formState.message = '';
-});
+  evt.currentTarget.reset();
+}
