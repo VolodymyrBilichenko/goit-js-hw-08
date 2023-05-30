@@ -19,7 +19,7 @@ refs.form.addEventListener('input', throttle(function (evt) {
   const formDataJSON = JSON.stringify(formData);
 
   localStorage.setItem(OBJECT_KEY, formDataJSON);
-}, 3500));
+}, 500));
 
 function formDataLocaleStorage() {
   const savedData = localStorage.getItem(OBJECT_KEY);
